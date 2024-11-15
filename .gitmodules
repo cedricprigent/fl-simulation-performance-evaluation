@@ -1,3 +1,12 @@
 [submodule "air-quality-forecasting"]
 	path = air-quality-forecasting
 	url = git@github.com:cedricprigent/air-quality-forecasting.git
+[submodule "air-quality-preprocessing"]
+	path = air-quality-preprocessing
+	url = git@github.com:cedricprigent/air-quality-preprocessing.git
+[submodule "air-quality-monitoring"]
+	path = air-quality-monitoring
+	url = git@github.com:cedricprigent/air-quality-monitoring.git
+[submodule "system-monitoring"]
+	path = system-monitoring
+	url = git@github.com:cedricprigent/system-monitoring.git
