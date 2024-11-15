@@ -1,0 +1,59 @@
+# All
+- hosts: cloud.*
+  vars:
+    client_image: 'cedricprigent/air-quality-forecasting-client:emulation'
+    server_image: 'cedricprigent/air-quality-forecasting-server:0.0.2'
+    save_dir: '/home/cprigent/runs/aqf/simulation-public/'
+
+  prepare:
+    - name: Copying files
+      synchronize:
+        src: '{{ artifacts_dir }}/'
+        dest: '/tmp/app/'
+      delegate_to: "{{ inventory_hostname }}"
+    - name: Checking Docker Installation
+      command: docker --version
+      register: docker_valid
+      ignore_errors: yes
+    - name: Installing docker
+      shell: '/grid5000/code/bin/g5k-setup-docker'
+      when: docker_valid.failed
+    - name: Pull docker image
+      shell: 'docker pull {{ server_image }}'
+    - name: Pull docker image
+      shell: 'docker pull {{ client_image }}'
+  
+  launch:
+    - name: Running server
+      shell: 'docker run --rm --privileged -d
+                              --network=host 
+                              --volume /tmp/log:/app/log 
+                              --name server 
+                              -e SCENARIO={{ env_scenario }}
+                              {{ server_image }}'
+
+    - name: Running client
+      shell: 'docker run --rm --privileged -d --network=host --volume /tmp/log:/app/log --name client-1
+              -e SERVER_ADDRESS=0.0.0.0
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-0/processed
+              {{ client_image }}'
+    - name: Running client
+      shell: 'docker run --rm --privileged -d --network=host --volume /tmp/log:/app/log --name client-2
+              -e SERVER_ADDRESS=0.0.0.0
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-1/processed
+              {{ client_image }}'
+    - name: Running client
+      shell: 'docker run --rm --privileged -d --network=host --volume /tmp/log:/app/log --name client-3
+              -e SERVER_ADDRESS=0.0.0.0
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-2/processed
+              {{ client_image }}'
+  
+    - name: Wait for server to stop
+      shell: 'bash /tmp/app/scripts/wait_stop_container.sh'
+
+  finalize:
+    - name: Retrieving log files
+      shell: "cp -r /tmp/log {{ save_dir }} "

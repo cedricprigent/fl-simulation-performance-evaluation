@@ -1,0 +1,4 @@
+client_image: 'cedricprigent/air-quality-forecasting-client:emulation'
+server_image: 'cedricprigent/air-quality-forecasting-server:0.0.2'
+system_image: 'cedricprigent/system_monitoring:std'
+save_dir: '/home/cprigent/runs/aqf/standard_deployment'

@@ -1,0 +1,17 @@
+---
+environment:
+  job_name: standard_fl_deployment
+  walltime: "01:00:00"
+  g5k:
+    job_type: ["deploy"]
+    env_name: "debian10-x64-big"
+    cluster: "parasilo"
+layers:
+- name: cloud
+  services:
+  - name: Server
+    quantity: 1
+- name: edge
+  services:
+  - name: Client
+    quantity: 3

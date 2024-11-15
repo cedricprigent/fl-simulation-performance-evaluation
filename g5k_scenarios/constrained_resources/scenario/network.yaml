@@ -1,0 +1,7 @@
+networks:
+- src: cloud
+  dst: edge
+  delay: "5ms"
+  rate: "0.1gbit"
+  loss: "1%"
+  symmetric: true

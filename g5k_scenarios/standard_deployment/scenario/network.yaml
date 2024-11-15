@@ -1,0 +1,6 @@
+networks:
+- src: cloud
+  dst: edge
+  delay: "5ms"
+  rate: "1gbit"
+  loss: "1%"

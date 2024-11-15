@@ -1,0 +1,25 @@
+# All
+- hosts: cloud.*
+  vars:
+    image: 'cedricprigent/air-quality-forecasting-simulation:0.0.1'
+    container_name: 'simulation'
+    save_dir: '/home/cprigent/runs/aqf/one_node_sim/'
+
+  prepare:
+    - name: Checking Docker Installation
+      command: docker --version
+      register: docker_valid
+      ignore_errors: yes
+    - name: Installing docker
+      shell: '/grid5000/code/bin/g5k-setup-docker'
+      when: docker_valid.failed
+    - name: Pull docker image
+      shell: 'docker pull {{ image }}'
+  
+  launch:
+    - name: Running docker image
+      shell: 'docker run --rm --privileged --network=host --volume /tmp/log:/app/log --name {{ container_name }} {{ image }}'
+  
+  finalize:
+    - name: Retrieving log files
+      shell: "cp -r /tmp/log {{ save_dir }} "

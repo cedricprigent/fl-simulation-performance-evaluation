@@ -1,0 +1,122 @@
+# All
+- hosts: cloud.*, edge.*
+  prepare:
+    - name: Checking Docker Installation
+      command: docker --version
+      register: docker_valid
+      ignore_errors: yes
+    - name: Installing docker
+      shell: '/grid5000/code/bin/g5k-setup-docker'
+      when: docker_valid.failed
+
+# Server
+- hosts: cloud.server.*
+  prepare:
+    - name: Copying files
+      synchronize:
+        src: '{{ artifacts_dir }}/'
+        dest: '/tmp/app/'
+      delegate_to: "{{ inventory_hostname }}"
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Pull docker image
+      shell: 'docker pull {{ server_image }}'
+  
+  launch:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Running docker image
+      shell: 'docker run --rm --privileged -d
+              --network=host
+              --volume /tmp/log:/app/log 
+              --name server 
+              -e SCENARIO={{ env_scenario }}
+              {{ server_image }}'
+   
+  finalize:
+    - name: Wait for server to stop
+      shell: 'bash /tmp/app/scripts/wait_stop_container.sh'
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Retrieving log files
+      shell: "cp -r /tmp/log {{ save_dir }} "
+
+# Clients
+- hosts: edge.client.*
+  depends_on:
+    - service_selector: "cloud.server.*"
+      grouping: "round_robin"
+      prefix: "server"
+
+  prepare:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Pull docker image
+      shell: 'docker pull {{ client_image }}'
+    - name: Pull docker image
+      shell: 'docker pull {{ system_image }}'
+    - name: Running system monitoring
+      shell: 'docker start system_monitoring || docker run --rm --privileged -d
+              --network=host
+              --volume /tmp/system:/public
+              --name system_monitoring
+              {{ system_image }}'
+
+# Client 1
+- hosts: edge.client.1.1
+  depends_on:
+    - service_selector: "cloud.server.*"
+      grouping: "round_robin"
+      prefix: "server"
+  launch:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Running client
+      shell: 'docker run --rm --privileged -d 
+              --network=host
+              --name client 
+              -e SERVER_ADDRESS={{ server.url }}
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-0/processed
+              {{ client_image }}'
+  finalize:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Retreiving log files
+      shell: "cp -r /tmp/system {{ save_dir }}/1/ "
+
+# Client 2
+- hosts: edge.client.1.2
+  depends_on:
+    - service_selector: "cloud.server.*"
+      grouping: "round_robin"
+      prefix: "server"
+  launch:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Running client
+      shell: 'docker run --rm --privileged -d 
+              --network=host
+              --name client 
+              -e SERVER_ADDRESS={{ server.url }}
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-1/processed
+              {{ client_image }}'
+  finalize:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Retreiving log files
+      shell: "cp -r /tmp/system {{ save_dir }}/2/ "
+
+# Client 3
+- hosts: edge.client.1.3
+  depends_on:
+    - service_selector: "cloud.server.*"
+      grouping: "round_robin"
+      prefix: "server"
+  launch:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Running client
+      shell: 'docker run --rm --privileged -d 
+              --network=host
+              --name client 
+              -e SERVER_ADDRESS={{ server.url }}
+              -e SCENARIO={{ env_scenario }}
+              -e DATASET_PATH=/app/data/sensor-2/processed
+              {{ client_image }}'
+  finalize:
+    - include_vars: "{{ scenario_dir }}/vars.yaml"
+    - name: Retreiving log files
+      shell: "cp -r /tmp/system {{ save_dir }}/3/ "

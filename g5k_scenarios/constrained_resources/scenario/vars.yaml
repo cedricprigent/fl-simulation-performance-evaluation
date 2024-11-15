@@ -1,0 +1,8 @@
+client_image: 'cedricprigent/air-quality-forecasting-client:emulation'
+server_image: 'cedricprigent/air-quality-forecasting-server:0.0.2'
+system_image: 'cedricprigent/system_monitoring:std'
+save_dir: '/home/cprigent/runs/aqf/constrained_resources'
+memory: "8gb"
+cpus: "0"
+
+# https://github.com/giampaolo/psutil/issues/1011
