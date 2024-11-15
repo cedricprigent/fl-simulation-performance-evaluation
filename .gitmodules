@@ -1,0 +1,3 @@
+[submodule "air-quality-forecasting"]
+	path = air-quality-forecasting
+	url = git@github.com:cedricprigent/air-quality-forecasting.git
