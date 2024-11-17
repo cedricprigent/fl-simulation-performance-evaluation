@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/app/server.py", line 136, in <module>
+    main(server_address=args.server_address,
+  File "/app/server.py", line 66, in main
+    model.load_state_dict(torch.load(scenario_dict['checkpoint_path'], map_location=device))
+  File "/usr/local/lib/python3.10/site-packages/torch/serialization.py", line 997, in load
+    with _open_file_like(f, 'rb') as opened_file:
+  File "/usr/local/lib/python3.10/site-packages/torch/serialization.py", line 444, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/usr/local/lib/python3.10/site-packages/torch/serialization.py", line 425, in __init__
+    super().__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: 'model_weights/pre-trained/Sydney/256h-2l/best_weights.pt'
+
