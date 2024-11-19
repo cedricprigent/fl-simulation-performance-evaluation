@@ -1,7 +1,7 @@
 # All
 - hosts: cloud.*
   vars:
-    client_image: 'cedricprigent/air-quality-forecasting-client:emulation'
+    client_image: 'cedricprigent/air-quality-forecasting-client:emulation-rw'
     server_image: 'cedricprigent/air-quality-forecasting-server:0.0.2'
     save_dir: '/home/cprigent/runs/aqf/simulation-rw/'
 
